@@ -6,6 +6,7 @@ Init script for ubuntu that will set the ip address and hostname of an amazon sp
 ##Quick Start
 
 ```bash
+sudo pip install awscli
 sudo cp ec2-elastic-ip /etc/init.d/
 sudo chmod 755 /etc/init.d/ec2-elastic-ip
 sudo vi /etc/default/ec2-elastic-ip
