@@ -13,6 +13,8 @@
 
 . /lib/lsb/init-functions
 
+export PATH=/usr/local/bin:$PATH
+
 if [ -f /etc/default/ec2-elastic-ip ]; then
 	. /etc/default/ec2-elastic-ip
 fi
