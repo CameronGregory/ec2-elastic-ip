@@ -9,6 +9,8 @@ Init script for ubuntu that will set the ip address and hostname of an amazon sp
 sudo pip install awscli
 sudo cp ec2-elastic-ip /etc/init.d/
 sudo chmod 755 /etc/init.d/ec2-elastic-ip
+sudo update-rc.d ec2-elastic-ip defaults
+sudo update-rc.d ec2-elastic-ip enable
 sudo vi /etc/default/ec2-elastic-ip
 ```
 The contents of /etc/default/ec2-elastic-ip should be:
