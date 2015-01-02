@@ -1,0 +1,74 @@
+#!/bin/bash
+# Assign an ip address and hostname from user-data for amazon spot instances
+# @author Cameron Gregory, http://www.bloke.com/
+
+### BEGIN INIT INFO
+# Provides:          ec2-elastic-ip
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      
+# Short-Description: Assign ip address and hostname from user-data
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+if [ -f /etc/default/ec2-elastic-ip ]; then
+	. /etc/default/ec2-elastic-ip
+fi
+
+rc=0
+
+start()
+{
+	log_action_begin_msg "Loading user-data "
+
+	#load IPv4 rules
+	which aws > /dev/null
+	if [ $? -ne 0 ]; then
+		log_action_cont_msg " aws cli missing"
+		rc=1
+	fi
+	which curl > /dev/null
+	if [ $? -ne 0 ]; then
+		log_action_cont_msg " curl missing"
+		rc=1
+	fi
+
+	INSTANCE_ID=$(curl -s http://instance-data/latest/meta-data/instance-id)
+	USERDATA=$(curl -s http://instance-data/latest/user-data)
+	ELASTIC_IP=$(echo $USERDATA | awk 'BEGIN{RS="&";FS="="} /ip/ {print $2}')
+	ELASTIC_HOSTNAME=$(echo $USERDATA | awk 'BEGIN{RS="&";FS="="} /hostname/ {print $2}')
+
+	if [ -n "${ELASTIC_IP}" ]
+	then
+		log_action_cont_msg " IP ${ELASTIC_IP}"
+		aws ec2 associate-address --instance-id $INSTANCE_ID --public-ip $ELASTIC_IP > /dev/null
+	else
+		log_action_cont_msg " No IP"
+	fi
+
+	if [ -n "${ELASTIC_HOSTNAME}" ]
+	then
+		log_action_cont_msg " Hostname ${ELASTIC_HOSTNAME}"
+		hostname $ELASTIC_HOSTNAME
+	else
+		log_action_cont_msg " No hostname"
+	fi
+
+	log_action_end_msg $rc
+}
+
+case "$1" in
+start|restart)
+	start
+	;;
+stop)
+	;;
+*)
+    echo "Usage: $0 {start|restart}" >&2
+    exit 1
+    ;;
+esac
+
+exit $rc
