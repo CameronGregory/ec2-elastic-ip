@@ -56,6 +56,13 @@ start()
 	then
 		log_action_cont_msg " Hostname ${ELASTIC_HOSTNAME}"
 		hostname $ELASTIC_HOSTNAME
+		if [ -d /etc/default/ec2-elastic-ip.d/ssh/$ELASTIC_HOSTNAME ]; then
+			log_action_cont_msg " Copy ssh host files"
+			/bin/cp /etc/default/ec2-elastic-ip.d/ssh/$ELASTIC_HOSTNAME/* /etc/ssh
+		else
+			log_action_cont_msg " No ssh host files"
+		fi
+
 	else
 		log_action_cont_msg " No hostname"
 	fi
