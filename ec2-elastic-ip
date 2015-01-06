@@ -56,6 +56,9 @@ start()
 	then
 		log_action_cont_msg " Hostname ${ELASTIC_HOSTNAME}"
 		hostname $ELASTIC_HOSTNAME
+		#optionally setup the name of the instance as the "shortname"
+		#INSTANCE_NAME=`hostname -s`
+		#aws ec2 create-tags --region $EC2_REGION --resources $INSTANCE_ID --tags Key=Name,Value=$INSTANCE_NAME
 		if [ -d /etc/default/ec2-elastic-ip.d/ssh/$ELASTIC_HOSTNAME ]; then
 			log_action_cont_msg " Copy ssh host files"
 			/bin/cp /etc/default/ec2-elastic-ip.d/ssh/$ELASTIC_HOSTNAME/* /etc/ssh
